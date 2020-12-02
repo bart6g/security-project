@@ -20,6 +20,9 @@ const userSchema = new mongoose.Schema(
       required: true,
       min: 5,
     },
+    isActive: {
+      type: Boolean,
+    },
   },
   { timestamps: true }
 );

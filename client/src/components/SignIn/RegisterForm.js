@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { useHistory } from "react-router-dom";
 import {
   FormContainer,
   Form,
@@ -18,6 +19,8 @@ const RegisterForm = () => {
   const [password, setPassword] = useState("");
   const [passwordCheck, setPasswordCheck] = useState("");
 
+  let history = useHistory();
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
@@ -33,9 +36,9 @@ const RegisterForm = () => {
         newUser
       );
 
-      console.log(userResponse);
+      console.log(userResponse.data);
     } catch (err) {
-      console.log(err);
+      console.log(err.response.data.msg);
     }
   };
   return (

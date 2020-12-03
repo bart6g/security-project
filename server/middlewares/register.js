@@ -8,39 +8,37 @@ const mailgun = require("mailgun-js")({
   domain: process.env.DOMAIN,
 });
 
-const sendEmail = (email,name,password)=> {
-
+const sendEmail = (email, name, password) => {
   const token = jwt.sign(
     { name, email, password },
     process.env.JWT_ACC_ACTIVATE,
-    { expiresIn: "1m" }
+    { expiresIn: "15m" }
   );
-  
 
-  const url=`${process.env.SERVER_URL}/users/email-activate/${token}`
-      const data = {
-        from: "noreply@bartosz.com",
-        to: email,
-        subject: "Account Activation Link",
-        html: `
+  const url = `${process.env.SERVER_URL}/users/email-activate/${token}`;
+  const data = {
+    from: "noreply@bartosz.com",
+    to: email,
+    subject: "Account Activation Link",
+    html: `
           <h2> Please click on given link to activate your account </h2>
           <a href="${url}">Click</a>
         `,
+  };
+  mailgun.messages().send(data, (error, body) => {
+    if (error) {
+      return {
+        error: error.message,
       };
-      mailgun.messages().send(data, (error, body) => {
-        if (error) {
-          return {
-            error: error.message,
-          };
-        } else {
-          console.log("message sent");
-          console.log(body);
-          return {
-            message: "Email has been sent, activate your account",
-          }
-        }
-      });
-}
+    } else {
+      console.log("message sent");
+      console.log(body);
+      return {
+        message: "Email has been sent, activate your account",
+      };
+    }
+  });
+};
 exports.signup = async (req, res) => {
   console.log("here");
   try {
@@ -67,7 +65,6 @@ exports.signup = async (req, res) => {
         .status(400)
         .json({ msg: "An account with this email already exists" });
     } else {
-
       //create new user with is_active=false
 
       try {
@@ -84,9 +81,9 @@ exports.signup = async (req, res) => {
       } catch (err) {
         return res.status(400).json({ msg: err.message });
       }
-      console.log("send email")
-      const emailResponse = sendEmail(email,name,password)
-      return res.json(emailResponse)
+      console.log("send email");
+      const emailResponse = sendEmail(email, name, password);
+      return res.json(emailResponse);
     }
   } catch (err) {
     res.status(500).json({ error: err.message });
@@ -94,7 +91,7 @@ exports.signup = async (req, res) => {
 };
 
 exports.activateAccount = (req, res) => {
-  const {token} = req.params
+  const { token } = req.params;
   console.log(token);
 
   if (token) {
@@ -103,7 +100,7 @@ exports.activateAccount = (req, res) => {
       process.env.JWT_ACC_ACTIVATE,
       async (err, decodedToken) => {
         if (err) {
-          return res.redirect("http://localhost:3000/inactive-token")
+          return res.redirect("http://localhost:3000/inactive-token");
         } else {
           try {
             const { name, email, password } = decodedToken;
@@ -111,8 +108,8 @@ exports.activateAccount = (req, res) => {
               { email: email },
               { isActive: true }
             );
-            
-            return res.redirect("http://localhost:3000/email-activate")
+
+            return res.redirect("http://localhost:3000/email-activate");
           } catch (err) {
             res.status(400).json({ error: err.message });
           }
@@ -120,24 +117,22 @@ exports.activateAccount = (req, res) => {
       }
     );
   } else {
-    return res.redirect("http://localhost:3000/inactive-token")
+    return res.redirect("http://localhost:3000/inactive-token");
   }
 };
 
-exports.expiredToken = async (req,res)=>{
-
-  const {email} = req.body;
-  try{
-    const user = await User.findOne({email});
-    const {name,password} = user;
-    if(!user) {
-      return res.json({msg: "no user"})
-    } else{
-      const emailReposnse = sendEmail(email,name,password)
-      return res.json({msg:'email send'})
+exports.expiredToken = async (req, res) => {
+  const { email } = req.body;
+  try {
+    const user = await User.findOne({ email });
+    const { name, password } = user;
+    if (!user) {
+      return res.json({ msg: "no user" });
+    } else {
+      const emailReposnse = sendEmail(email, name, password);
+      return res.json({ msg: "email send" });
     }
-
-  } catch(err) {
-    return res.status(400).json({err: err.message})
+  } catch (err) {
+    return res.status(400).json({ err: err.message });
   }
-}
+};

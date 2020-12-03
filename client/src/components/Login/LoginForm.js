@@ -9,18 +9,40 @@ import {
   SubmitBtn,
   FormH1,
 } from "../SignIn/SigninElements";
+import { useHistory } from "react-router-dom";
+import axios from "axios";
 
 const LoginForm = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  let history = useHistory();
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
+
     const loginData = {
       email,
       password,
     };
     console.log(loginData);
+    try {
+      const loginResponse = await axios.post(
+        "http://localhost:4000/users/login",
+        loginData
+      );
+      let { token, user } = loginResponse.data;
+      console.log(token);
+      token = token ? token : undefined;
+      user = user ? user : undefined;
+
+      if (!token) {
+        history.push("/loginfailed");
+      } else {
+        history.push("loginsuccess");
+      }
+    } catch (err) {
+      console.log(err.response.data.msg);
+    }
   };
   return (
     <>

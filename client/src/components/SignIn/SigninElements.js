@@ -9,7 +9,7 @@ export const FormContainer = styled.div`
 `;
 
 export const Form = styled.form`
-  height: 620px;
+  height: ${({ login }) => (login ? "380px" : "620px")};
   width: 350px;
   background-color: #fff;
   box-shadow: 0 2.8px 2.2px rgba(0, 0, 0, 0.034),

@@ -4,8 +4,9 @@ import Navbar from "./components/Navbar";
 import Sidebar from "./components/Sidebar";
 import HomePage from "./pages/HomePage";
 import SigninPage from "./pages/SigninPage";
-import ExpiredPage from "./pages/ExpiredPage"
-import Activate from "./pages/ActivatePage"
+import ExpiredPage from "./pages/ExpiredPage";
+import Activate from "./pages/ActivatePage";
+import LoginPage from "./pages/LoginPage";
 
 const App = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -19,7 +20,8 @@ const App = () => {
       <Sidebar isOpen={isOpen} toggle={toggle} />
       <Switch>
         <Route path="/" exact component={HomePage} />
-        <Route path="/signin" component={SigninPage} />
+        <Route path="/register" component={SigninPage} />
+        <Route path="/login" component={LoginPage} />
         <Route path="/email-activate" component={Activate} />
         <Route path="/inactive-token" component={ExpiredPage} />
       </Switch>

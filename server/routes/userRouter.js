@@ -1,11 +1,12 @@
 const router = require("express").Router();
-const { signup, activateAccount } = require("../middlewares/register");
+const { signup, activateAccount, expiredToken } = require("../middlewares/register");
 
 router.get("/", (req, res) => {
   res.json("hello user");
 });
 
 router.post("/register", signup);
-router.post("/email-activate", activateAccount);
+router.get("/email-activate/:token", activateAccount);
+router.post("/expired-token", expiredToken )
 
 module.exports = router;

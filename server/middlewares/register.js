@@ -8,6 +8,39 @@ const mailgun = require("mailgun-js")({
   domain: process.env.DOMAIN,
 });
 
+const sendEmail = (email,name,password)=> {
+
+  const token = jwt.sign(
+    { name, email, password },
+    process.env.JWT_ACC_ACTIVATE,
+    { expiresIn: "1m" }
+  );
+  
+
+  const url=`${process.env.SERVER_URL}/users/email-activate/${token}`
+      const data = {
+        from: "noreply@bartosz.com",
+        to: email,
+        subject: "Account Activation Link",
+        html: `
+          <h2> Please click on given link to activate your account </h2>
+          <a href="${url}">Click</a>
+        `,
+      };
+      mailgun.messages().send(data, (error, body) => {
+        if (error) {
+          return {
+            error: error.message,
+          };
+        } else {
+          console.log("message sent");
+          console.log(body);
+          return {
+            message: "Email has been sent, activate your account",
+          }
+        }
+      });
+}
 exports.signup = async (req, res) => {
   console.log("here");
   try {
@@ -34,11 +67,6 @@ exports.signup = async (req, res) => {
         .status(400)
         .json({ msg: "An account with this email already exists" });
     } else {
-      const token = jwt.sign(
-        { name, email, password },
-        process.env.JWT_ACC_ACTIVATE,
-        { expiresIn: "15m" }
-      );
 
       //create new user with is_active=false
 
@@ -56,29 +84,9 @@ exports.signup = async (req, res) => {
       } catch (err) {
         return res.status(400).json({ msg: err.message });
       }
-
-      const data = {
-        from: "noreply@bartosz.com",
-        to: email,
-        subject: "Account Activation Link",
-        html: `
-          <h2> Please click on given link to activate your account </h2>
-          <a> ${process.env.SERVER_URL}/auth/activate/${token}</a>
-        `,
-      };
-      mailgun.messages().send(data, (error, body) => {
-        if (error) {
-          return res.json({
-            error: error.message,
-          });
-        } else {
-          console.log("message sent");
-          console.log(body);
-          return res.json({
-            message: "Email has been sent, activate your account",
-          });
-        }
-      });
+      console.log("send email")
+      const emailResponse = sendEmail(email,name,password)
+      return res.json(emailResponse)
     }
   } catch (err) {
     res.status(500).json({ error: err.message });
@@ -86,7 +94,8 @@ exports.signup = async (req, res) => {
 };
 
 exports.activateAccount = (req, res) => {
-  const { token } = req.body;
+  const {token} = req.params
+  console.log(token);
 
   if (token) {
     jwt.verify(
@@ -94,7 +103,7 @@ exports.activateAccount = (req, res) => {
       process.env.JWT_ACC_ACTIVATE,
       async (err, decodedToken) => {
         if (err) {
-          return res.status(400).json({ error: "Incorrect or expired link" });
+          return res.redirect("http://localhost:3000/inactive-token")
         } else {
           try {
             const { name, email, password } = decodedToken;
@@ -102,7 +111,8 @@ exports.activateAccount = (req, res) => {
               { email: email },
               { isActive: true }
             );
-            res.json(updatedUser);
+            
+            return res.redirect("http://localhost:3000/email-activate")
           } catch (err) {
             res.status(400).json({ error: err.message });
           }
@@ -110,6 +120,24 @@ exports.activateAccount = (req, res) => {
       }
     );
   } else {
-    return res.json({ error: "something went wrong" });
+    return res.redirect("http://localhost:3000/inactive-token")
   }
 };
+
+exports.expiredToken = async (req,res)=>{
+
+  const {email} = req.body;
+  try{
+    const user = await User.findOne({email});
+    const {name,password} = user;
+    if(!user) {
+      return res.json({msg: "no user"})
+    } else{
+      const emailReposnse = sendEmail(email,name,password)
+      return res.json({msg:'email send'})
+    }
+
+  } catch(err) {
+    return res.status(400).json({err: err.message})
+  }
+}

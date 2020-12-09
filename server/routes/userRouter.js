@@ -4,14 +4,15 @@ const {
   activateAccount,
   expiredToken,
 } = require("../middlewares/register");
-const { login } = require("../middlewares/login");
+const { twoFactorAuth, verify } = require("../middlewares/login");
 
 router.get("/", (req, res) => {
   res.json("hello user");
 });
 
 router.post("/register", signup);
-router.post("/login", login);
+router.post("/twoFactor", twoFactorAuth);
+router.post("/verify", verify)
 router.get("/email-activate/:token", activateAccount);
 router.post("/expired-token", expiredToken);
 

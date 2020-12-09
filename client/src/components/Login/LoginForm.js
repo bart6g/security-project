@@ -15,6 +15,10 @@ import axios from "axios";
 const LoginForm = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [isClickedLogin, setIsClicedLogin] = useState(true);
+  const [qrcode, setQrcode] = useState(null)
+  const [tokenAuth, setTokenAuth] = useState(null)
+  const [secret, setSecret] = useState('')
   let history = useHistory();
 
   const handleSubmit = async (e) => {
@@ -26,26 +30,50 @@ const LoginForm = () => {
     };
     console.log(loginData);
     try {
-      const loginResponse = await axios.post(
-        "http://localhost:4000/users/login",
+      const qrcodeResponse = await axios.post(
+        "http://localhost:4000/users/twoFactor",
         loginData
       );
-      let { token, user } = loginResponse.data;
-      console.log(token);
-      token = token ? token : undefined;
-      user = user ? user : undefined;
 
-      if (!token) {
-        history.push("/loginfailed");
-      } else {
-        history.push("loginsuccess");
-      }
+      console.log(qrcodeResponse.data.qrCode)
+   
+        setQrcode(qrcodeResponse.data.qrCode)
+        setSecret(qrcodeResponse.data.ascii)
+        setIsClicedLogin(true)
+     
     } catch (err) {
+      setQrcode(null)
+      setIsClicedLogin(false)
       console.log(err.response.data.msg);
     }
   };
+
+  const handleAuth = async (e)=>{
+    e.preventDefault();
+
+    try{
+      const authData={
+        email,
+        password,
+        tokenAuth,
+        secret
+      }
+      const authResponse = await axios.post("http://localhost:4000/users/verify", authData)
+      console.log(authResponse)
+      let {token, user} = authResponse.data;
+      token = token ? token : null;
+      user = user ? user : null;
+      console.log(token);
+      console.log(user)
+    }catch(err){
+      console.log(err)
+    }
+
+  }
+
   return (
     <>
+      
       <FormContainer>
         <Form login="true" onSubmit={(e) => handleSubmit(e)}>
           <FormH1>Login</FormH1>
@@ -72,6 +100,14 @@ const LoginForm = () => {
           </InputContainer>
         </Form>
       </FormContainer>
+      {!isClickedLogin ? null : (qrcode ? (<div><img src={qrcode} alt="this is qr code"/>
+      <div>
+        <label htmlFor="code">
+        Enter your code here</label>
+        <input type="text" id="code" value={tokenAuth} onChange={(e)=> setTokenAuth(e.target.value)}/>
+        <button onClick={(e)=>handleAuth(e)}>Confirm</button>
+      </div>
+      </div>) : null)}
     </>
   );
 };

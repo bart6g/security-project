@@ -18,6 +18,7 @@ const RegisterForm = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [passwordCheck, setPasswordCheck] = useState("");
+  const [errors, setErrors] = useState(null);
 
   let history = useHistory();
 
@@ -38,15 +39,27 @@ const RegisterForm = () => {
 
       console.log(userResponse.data);
     } catch (err) {
+      setErrors(err.response.data.msg);
       console.log(err.response.data.msg);
     }
   };
   return (
     <>
       <FormContainer>
-        <Form onSubmit={(e) => handleSubmit(e)}>
+        <Form onSubmit={(e) => handleSubmit(e)} errors={errors ? true : false}>
           <FormH1>Registration Form</FormH1>
           <InputContainer>
+            {errors ? (
+              <p
+                style={{
+                  color: "red",
+                  fontWeight: "bold",
+                  textAlign: "center",
+                }}
+              >
+                {errors}
+              </p>
+            ) : null}
             <InputWrap>
               <FormLabel htmlFor="firstName">First Name</FormLabel>
               <FormInput

@@ -9,6 +9,7 @@ import Activate from "./pages/ActivatePage";
 import LoginPage from "./pages/LoginPage";
 import LoginFailed from "./pages/LoginFailed";
 import LoginSuccess from "./pages/LoginSuccess";
+import RegisterSucces from "./pages/RegisterSucces";
 
 const App = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -28,6 +29,7 @@ const App = () => {
         <Route path="/inactive-token" component={ExpiredPage} />
         <Route path="/loginfailed" component={LoginFailed} />
         <Route path="/loginsuccess" component={LoginSuccess} />
+        <Route path="/registersuccess" component={RegisterSucces} />
       </Switch>
     </Router>
   );

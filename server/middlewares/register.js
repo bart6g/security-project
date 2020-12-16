@@ -8,9 +8,9 @@ const mailgun = require("mailgun-js")({
   domain: process.env.DOMAIN,
 });
 
-const sendEmail = (email, name, password) => {
+const sendEmail = (email, firstName, lastName, password) => {
   const token = jwt.sign(
-    { name, email, password },
+    { lastName, email, password },
     process.env.JWT_ACC_ACTIVATE,
     { expiresIn: "15m" }
   );
@@ -43,11 +43,10 @@ exports.signup = async (req, res) => {
   console.log("here");
   try {
     // console.log(req.body);
-    let { email, password, passwordCheck, name } = req.body;
-    !name ? (name = email) : name;
+    let { email, password, passwordCheck, firstName, lastName } = req.body;
 
     //validation
-    if (!email || !password || !passwordCheck)
+    if (!email || !password || !passwordCheck || !firstName || !lastName)
       return res.status(400).json({ msg: "Not all fields have been entered." });
     if (password.length < 5)
       return res
@@ -71,7 +70,8 @@ exports.signup = async (req, res) => {
         const salt = await bcrypt.genSalt(10);
         const hashedPassword = await bcrypt.hash(password, salt);
         const newUser = new User({
-          name,
+          firstName,
+          lastName,
           email,
           password: hashedPassword,
           isActive: false,
@@ -82,7 +82,7 @@ exports.signup = async (req, res) => {
         return res.status(400).json({ msg: err.message });
       }
       console.log("send email");
-      const emailResponse = sendEmail(email, name, password);
+      const emailResponse = sendEmail(email, firstName, lastName, password);
       return res.json(emailResponse);
     }
   } catch (err) {
@@ -103,7 +103,7 @@ exports.activateAccount = (req, res) => {
           return res.redirect("http://localhost:3000/inactive-token");
         } else {
           try {
-            const { name, email, password } = decodedToken;
+            const { lastName, email, password } = decodedToken;
             const updatedUser = await User.findOneAndUpdate(
               { email: email },
               { isActive: true }
@@ -125,11 +125,11 @@ exports.expiredToken = async (req, res) => {
   const { email } = req.body;
   try {
     const user = await User.findOne({ email });
-    const { name, password } = user;
+    const { firstName, lastName, password } = user;
     if (!user) {
       return res.json({ msg: "no user" });
     } else {
-      const emailReposnse = sendEmail(email, name, password);
+      const emailReposnse = sendEmail(email, firstName, lastName, password);
       return res.json({ msg: "email send" });
     }
   } catch (err) {

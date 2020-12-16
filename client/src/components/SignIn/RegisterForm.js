@@ -10,6 +10,7 @@ import {
   InputWrap,
   SubmitBtn,
 } from "./SigninElements";
+import ReCAPTCHA from "react-google-recaptcha";
 import axios from "axios";
 
 const RegisterForm = () => {
@@ -19,6 +20,7 @@ const RegisterForm = () => {
   const [password, setPassword] = useState("");
   const [passwordCheck, setPasswordCheck] = useState("");
   const [errors, setErrors] = useState(null);
+  const [captchaToken, setCaptchaToken] = useState(null);
 
   let history = useHistory();
 
@@ -37,16 +39,29 @@ const RegisterForm = () => {
         newUser
       );
 
-      console.log(userResponse.data);
+      console.log(userResponse);
+      if (userResponse.status === 200) {
+        history.push("/registersuccess");
+      }
     } catch (err) {
       setErrors(err.response.data.msg);
       console.log(err.response.data.msg);
     }
   };
+
+  const handleClear = (e) => {
+    e.preventDefault();
+    setFirstName("");
+    setLastName("");
+    setEmail("");
+    setPassword("");
+    setPasswordCheck("");
+    setErrors(null);
+  };
   return (
     <>
       <FormContainer>
-        <Form onSubmit={(e) => handleSubmit(e)} errors={errors ? true : false}>
+        <Form errors={errors ? true : false}>
           <FormH1>Registration Form</FormH1>
           <InputContainer>
             {errors ? (
@@ -106,9 +121,15 @@ const RegisterForm = () => {
               ></FormInput>
             </InputWrap>
 
-            <SubmitBtn type="submit">Register</SubmitBtn>
+            <SubmitBtn onClick={(e) => handleSubmit(e)}>Register</SubmitBtn>
+            <button onClick={(e) => handleClear(e)}>Clear</button>
           </InputContainer>
         </Form>
+        <ReCAPTCHA
+          sitekey={process.env.PUBLIC_RECAPTCHA_SITE_KEY}
+          onChange={(captchaToken) => setCaptchaToken(captchaToken)}
+          onExpired={(e) => setCaptchaToken(null)}
+        />
       </FormContainer>
     </>
   );

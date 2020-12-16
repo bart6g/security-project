@@ -20,6 +20,7 @@ const LoginForm = () => {
   const [tokenAuth, setTokenAuth] = useState(null);
   const [secret, setSecret] = useState("");
   const [errors, setErrors] = useState(null);
+  const [authError, setAuthError] = useState(false);
 
   let history = useHistory();
 
@@ -37,9 +38,11 @@ const LoginForm = () => {
         loginData
       );
 
-      console.log(qrcodeResponse.data.qrCode);
-
       setQrcode(qrcodeResponse.data.qrCode);
+      setAuthError(false);
+      if (qrcode) {
+        setErrors(null);
+      }
       setSecret(qrcodeResponse.data.ascii);
       setIsClicedLogin(true);
     } catch (err) {
@@ -69,8 +72,12 @@ const LoginForm = () => {
       token = token ? token : null;
       user = user ? user : null;
       console.log(token);
+      if (token) {
+        history.push("/loginsuccess");
+      }
       console.log(user);
     } catch (err) {
+      setAuthError(true);
       console.log(err);
     }
   };
@@ -131,6 +138,9 @@ const LoginForm = () => {
             />
             <button onClick={(e) => handleAuth(e)}>Confirm</button>
           </div>
+          {authError ? (
+            <div style={{ color: "red" }}>Code is wrong, please check it</div>
+          ) : null}
         </div>
       ) : null}
     </>

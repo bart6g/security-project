@@ -15,7 +15,7 @@ export const Form = styled.form`
     } else if (login && errors) {
       return "430px";
     } else if (!login && errors) {
-      return "680px;";
+      return "690x;";
     } else {
       return "630px";
     }

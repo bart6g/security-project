@@ -12,7 +12,7 @@ router.get("/", (req, res) => {
 
 router.post("/register", signup);
 router.post("/twoFactor", twoFactorAuth);
-router.post("/verify", verify)
+router.post("/verify", verify);
 router.get("/email-activate/:token", activateAccount);
 router.post("/expired-token", expiredToken);
 

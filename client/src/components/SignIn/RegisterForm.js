@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useRef } from "react";
 import { useHistory } from "react-router-dom";
 import {
   FormContainer,
@@ -20,7 +20,7 @@ const RegisterForm = () => {
   const [password, setPassword] = useState("");
   const [passwordCheck, setPasswordCheck] = useState("");
   const [errors, setErrors] = useState(null);
-  const [captchaToken, setCaptchaToken] = useState(null);
+  const [captchaToken, setCaptcha] = useState(null);
 
   let history = useHistory();
 
@@ -33,6 +33,7 @@ const RegisterForm = () => {
         email,
         password,
         passwordCheck,
+        captchaToken,
       };
       const userResponse = await axios.post(
         "http://localhost:4000/users/register",
@@ -57,7 +58,13 @@ const RegisterForm = () => {
     setPassword("");
     setPasswordCheck("");
     setErrors(null);
+    setCaptcha(null);
   };
+
+  const onCaptchaChange = (value) => {
+    setCaptcha(value);
+  };
+
   return (
     <>
       <FormContainer>
@@ -125,10 +132,10 @@ const RegisterForm = () => {
             <button onClick={(e) => handleClear(e)}>Clear</button>
           </InputContainer>
         </Form>
+
         <ReCAPTCHA
-          sitekey={process.env.PUBLIC_RECAPTCHA_SITE_KEY}
-          onChange={(captchaToken) => setCaptchaToken(captchaToken)}
-          onExpired={(e) => setCaptchaToken(null)}
+          sitekey={process.env.REACT_APP_PUBLIC_RECAPTCHA_SITE_KEY}
+          onChange={onCaptchaChange}
         />
       </FormContainer>
     </>

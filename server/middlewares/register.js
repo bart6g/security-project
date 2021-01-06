@@ -3,6 +3,7 @@ const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 require("dotenv").config();
 
+const { isHuman } = require("./captcha");
 const mailgun = require("mailgun-js")({
   apiKey: process.env.MAILGUN_APIKEY,
   domain: process.env.DOMAIN,
@@ -39,15 +40,31 @@ const sendEmail = (email, firstName, lastName, password) => {
     }
   });
 };
+
 exports.signup = async (req, res) => {
   console.log("here");
   try {
     // console.log(req.body);
-    let { email, password, passwordCheck, firstName, lastName } = req.body;
+    let {
+      email,
+      password,
+      passwordCheck,
+      firstName,
+      lastName,
+      captchaToken,
+    } = req.body;
 
     //validation
     if (!email || !password || !passwordCheck || !firstName || !lastName)
       return res.status(400).json({ msg: "Not all fields have been entered." });
+    if (!captchaToken) {
+      return res.status(400).json({ msg: "Please provide captcha" });
+    }
+    const human = await isHuman(captchaToken);
+    console.log(human);
+    if (!human) {
+      return res.status(400).json({ msg: "You're not human" });
+    }
     if (password.length < 5)
       return res
         .status(400)
@@ -56,6 +73,8 @@ exports.signup = async (req, res) => {
       return res
         .status(400)
         .json({ msg: "Enter the same password twice for verification." });
+
+    //check if human
 
     const existingUser = await User.findOne({ email: email });
 
@@ -76,6 +95,7 @@ exports.signup = async (req, res) => {
           password: hashedPassword,
           isActive: false,
         });
+
         const savedUser = await newUser.save();
         console.log(savedUser);
       } catch (err) {

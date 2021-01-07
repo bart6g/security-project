@@ -12,6 +12,7 @@ import {
 } from "./SigninElements";
 import ReCAPTCHA from "react-google-recaptcha";
 import axios from "axios";
+import PasswordMeter from "./PasswordMeter";
 
 const RegisterForm = () => {
   const [firstName, setFirstName] = useState("");
@@ -117,6 +118,7 @@ const RegisterForm = () => {
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
               ></FormInput>
+              {password ? <PasswordMeter password={password} /> : null}
             </InputWrap>
             <InputWrap>
               <FormLabel htmlFor="passwordcheck">Repeat password</FormLabel>
@@ -131,12 +133,11 @@ const RegisterForm = () => {
             <SubmitBtn onClick={(e) => handleSubmit(e)}>Register</SubmitBtn>
             <button onClick={(e) => handleClear(e)}>Clear</button>
           </InputContainer>
+          <ReCAPTCHA
+            sitekey={process.env.REACT_APP_PUBLIC_RECAPTCHA_SITE_KEY}
+            onChange={onCaptchaChange}
+          />
         </Form>
-
-        <ReCAPTCHA
-          sitekey={process.env.REACT_APP_PUBLIC_RECAPTCHA_SITE_KEY}
-          onChange={onCaptchaChange}
-        />
       </FormContainer>
     </>
   );

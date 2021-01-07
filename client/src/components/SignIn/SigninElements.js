@@ -15,9 +15,9 @@ export const Form = styled.form`
     } else if (login && errors) {
       return "430px";
     } else if (!login && errors) {
-      return "690x;";
+      return "850x;";
     } else {
-      return "630px";
+      return "800px";
     }
   }};
   width: 350px;

@@ -16,10 +16,11 @@ const LoginForm = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [isClickedLogin, setIsClicedLogin] = useState(true);
-  const [qrcode, setQrcode] = useState(null);
+  // const [qrcode, setQrcode] = useState(null);
   const [tokenAuth, setTokenAuth] = useState(null);
   const [secret, setSecret] = useState("");
   const [errors, setErrors] = useState(null);
+  const [requestId, setRequestId] = useState(null);
   const [authError, setAuthError] = useState(false);
 
   let history = useHistory();
@@ -33,20 +34,25 @@ const LoginForm = () => {
     };
     console.log(loginData);
     try {
-      const qrcodeResponse = await axios.post(
+      const loginResponse = await axios.post(
         "http://localhost:4000/users/twoFactor",
         loginData
       );
-
-      setQrcode(qrcodeResponse.data.qrCode);
+      if (loginResponse) {
+        setRequestId(loginResponse.data.requestId);
+      }
+      // setQrcode(qrcodeResponse.data.qrCode);
       setAuthError(false);
-      if (qrcode) {
+      // if (qrcode) {
+      //   setErrors(null);
+      // }
+      if (requestId) {
         setErrors(null);
       }
-      setSecret(qrcodeResponse.data.ascii);
+      // setSecret(qrcodeResponse.data.ascii);
       setIsClicedLogin(true);
     } catch (err) {
-      setQrcode(null);
+      // setQrcode(null);
       setIsClicedLogin(false);
       setErrors(err.response.data.msg);
       console.log(err.response.data.msg);
@@ -60,14 +66,14 @@ const LoginForm = () => {
       const authData = {
         email,
         password,
-        tokenAuth,
+        requestId,
         secret,
       };
       const authResponse = await axios.post(
         "http://localhost:4000/users/verify",
         authData
       );
-      console.log(authResponse);
+      // console.log(authResponse);
       let { token, user } = authResponse.data;
       token = token ? token : null;
       user = user ? user : null;
@@ -75,9 +81,9 @@ const LoginForm = () => {
       if (token) {
         history.push("/loginsuccess");
       }
-      console.log(user);
+      // console.log(user);
     } catch (err) {
-      setAuthError(true);
+      // setAuthError(true);
       console.log(err);
     }
   };
@@ -125,7 +131,7 @@ const LoginForm = () => {
           </InputContainer>
         </Form>
       </FormContainer>
-      {!isClickedLogin ? null : qrcode ? (
+      {/* {!isClickedLogin ? null : qrcode ? (
         <div>
           <img src={qrcode} alt="this is qr code" />
           <div>
@@ -142,7 +148,22 @@ const LoginForm = () => {
             <div style={{ color: "red" }}>Code is wrong, please check it</div>
           ) : null}
         </div>
-      ) : null}
+      ) : null} */}
+      {!isClickedLogin ? null : (
+        <div>
+          <label htmlFor="secret">Enter your code here</label>
+          <input
+            type="text"
+            id="secret"
+            value={secret}
+            onChange={(e) => setSecret(e.target.value)}
+          />
+          <button onClick={(e) => handleAuth(e)}>Verify</button>
+          {authError ? (
+            <div style={{ color: "red" }}>Code is wrong, please check it</div>
+          ) : null}
+        </div>
+      )}
     </>
   );
 };

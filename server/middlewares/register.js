@@ -47,6 +47,7 @@ exports.signup = async (req, res) => {
     // console.log(req.body);
     let {
       email,
+      phone,
       password,
       passwordCheck,
       firstName,
@@ -55,7 +56,14 @@ exports.signup = async (req, res) => {
     } = req.body;
 
     //validation
-    if (!email || !password || !passwordCheck || !firstName || !lastName)
+    if (
+      !email ||
+      !password ||
+      !passwordCheck ||
+      !firstName ||
+      !lastName ||
+      !phone
+    )
       return res.status(400).json({ msg: "Not all fields have been entered." });
     if (!captchaToken) {
       return res.status(400).json({ msg: "Please provide captcha" });
@@ -91,6 +99,7 @@ exports.signup = async (req, res) => {
         const newUser = new User({
           firstName,
           lastName,
+          phone,
           email,
           password: hashedPassword,
           isActive: false,

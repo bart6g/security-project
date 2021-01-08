@@ -18,6 +18,7 @@ const RegisterForm = () => {
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
   const [email, setEmail] = useState("");
+  const [phone, setPhone] = useState("");
   const [password, setPassword] = useState("");
   const [passwordCheck, setPasswordCheck] = useState("");
   const [errors, setErrors] = useState(null);
@@ -32,6 +33,7 @@ const RegisterForm = () => {
         firstName,
         lastName,
         email,
+        phone,
         password,
         passwordCheck,
         captchaToken,
@@ -108,6 +110,15 @@ const RegisterForm = () => {
                 id="email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
+              ></FormInput>
+            </InputWrap>
+            <InputWrap>
+              <FormLabel htmlFor="phone">Phone number</FormLabel>
+              <FormInput
+                type="tel"
+                id="phone"
+                value={phone}
+                onChange={(e) => setPhone(e.target.value)}
               ></FormInput>
             </InputWrap>
             <InputWrap>

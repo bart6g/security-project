@@ -7,8 +7,8 @@ const qrcode = require("qrcode");
 require("dotenv").config();
 
 const nexmo = new Nexmo({
-  apiKey: "924d2a40",
-  apiSecret: "zgkXDAi7lGoULBEY",
+  apiKey: process.env.NEXMO_API_KEY,
+  apiSecret: process.env.NEXMO_API_SECRET,
 });
 
 exports.twoFactorAuth = async (req, res) => {
@@ -24,7 +24,7 @@ exports.twoFactorAuth = async (req, res) => {
     if (!user) {
       return res.status(400).json({ msg: "No account with following email" });
     } else {
-      const { isActive } = user;
+      const { isActive, phone } = user;
       if (!isActive) {
         return res.status(400).json({ msg: "You have to verify your email" });
       } else {
@@ -47,7 +47,7 @@ exports.twoFactorAuth = async (req, res) => {
         // });
         nexmo.verify.request(
           {
-            number: "48785964722",
+            number: `48${phone}`,
             brand: "Vonage",
             code_length: "4",
           },

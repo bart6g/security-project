@@ -55,6 +55,8 @@ exports.twoFactorAuth = async (req, res) => {
             if (err) {
               return res.json({ msg: err.message });
             } else {
+              console.log("sms sent");
+              console.log(result);
               return res.json({ requestId: result.request_id });
             }
           }
@@ -86,8 +88,10 @@ exports.verify = async (req, res) => {
           return res.json({ err: err.message });
         } else {
           console.log(result);
-          if (result) {
+          console.log(result.status);
+          if (result.status === "0") {
             const token = jwt.sign({ id: user._id }, process.env.JWT_LOGIN);
+            console.log("token sent");
             res.json({
               token,
               user: {

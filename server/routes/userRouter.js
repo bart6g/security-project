@@ -11,10 +11,10 @@ router.get("/", (req, res) => {
   res.json("hello user");
 });
 
-router.post("/register", signup);
+router.post("/register", loginLimitter, signup);
 router.post("/twoFactor", loginLimitter, twoFactorAuth);
 router.post("/verify", loginLimitter, verify);
-router.get("/email-activate/:token", activateAccount);
-router.post("/expired-token", expiredToken);
+router.get("/email-activate/:token", loginLimitter, activateAccount);
+router.post("/expired-token", loginLimitter, expiredToken);
 
 module.exports = router;

@@ -2,8 +2,7 @@ const User = require("../models/User");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 const Nexmo = require("nexmo");
-const speakeasy = require("speakeasy");
-const qrcode = require("qrcode");
+
 require("dotenv").config();
 
 const nexmo = new Nexmo({

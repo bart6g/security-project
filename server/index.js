@@ -2,12 +2,13 @@ const express = require("express");
 const userRouter = require("./routes/userRouter");
 const mongoose = require("mongoose");
 const cors = require("cors");
-const limitter = require("express-rate-limit");
+const mongoSanitize = require("express-mongo-sanitize");
 require("dotenv").config();
 
 const app = express();
 app.use(express.json());
 app.use(cors());
+app.use(mongoSanitize());
 const PORT = process.env.PORT || 5000;
 
 app.use("/users", userRouter);

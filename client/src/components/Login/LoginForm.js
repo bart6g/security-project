@@ -80,6 +80,7 @@ const LoginForm = () => {
       console.log(token);
       if (token) {
         history.push("/loginsuccess");
+        localStorage.setItem('auth-token', token);
       }
       // console.log(user);
     } catch (err) {
